@@ -9,7 +9,7 @@ public class User {
     private String email;
     private final Set<Consommation> consommations = new HashSet<>();
 
-    // Constructor, Getters, and Setters
+
     public User(Long id, String name, String email) {
         this.id = id;
         this.name = name;
