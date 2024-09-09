@@ -1,4 +1,6 @@
 package com.example.greenplusdb.model;
+import com.example.greenplusdb.model.enums.TypeConsommation;
+
 import java.sql.Timestamp;
 public abstract class Consommation{
     private int id;

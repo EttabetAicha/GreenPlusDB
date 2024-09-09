@@ -1,5 +1,8 @@
 package com.example.greenplusdb.model;
 
+import com.example.greenplusdb.model.enums.TypeConsommation;
+import com.example.greenplusdb.model.enums.TypeEnergie;
+
 public class Logement extends Consommation {
     private TypeEnergie typeEnergie;
     private double consommationEnergie;

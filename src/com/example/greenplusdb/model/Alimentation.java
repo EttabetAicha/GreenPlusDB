@@ -1,5 +1,8 @@
 package com.example.greenplusdb.model;
 
+import com.example.greenplusdb.model.enums.TypeAliment;
+import com.example.greenplusdb.model.enums.TypeConsommation;
+
 public class Alimentation extends Consommation {
     private TypeAliment typeAliment;
     private double poids;

@@ -1,4 +1,4 @@
-package com.example.greenplusdb.model;
+package com.example.greenplusdb.model.enums;
 
 public enum TypeAliment {
     VIANDE(5.0),

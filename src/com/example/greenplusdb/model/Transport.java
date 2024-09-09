@@ -1,5 +1,8 @@
 package com.example.greenplusdb.model;
 
+import com.example.greenplusdb.model.enums.TypeConsommation;
+import com.example.greenplusdb.model.enums.TypeVehicule;
+
 public class Transport extends Consommation {
     private TypeVehicule typeVehicule;
     private double distanceParcourue;
