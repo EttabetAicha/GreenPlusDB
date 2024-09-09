@@ -3,7 +3,7 @@ package com.example.greenplusdb.model;
 import java.util.HashSet;
 import java.util.Set;
 
-public class User {
+public class  User {
     private Long id;
     private String name;
     private String email;

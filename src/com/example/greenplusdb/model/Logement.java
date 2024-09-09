@@ -9,7 +9,6 @@ public class Logement extends Consommation {
 
 
     public Logement(User user, TypeEnergie typeEnergie, double consommationEnergie) {
-        // Calculate the impact before calling super()
         super(user, TypeConsommation.LOGEMENT, calculateLogementImpact(consommationEnergie, typeEnergie));
         this.typeEnergie = typeEnergie;
         this.consommationEnergie = consommationEnergie;
