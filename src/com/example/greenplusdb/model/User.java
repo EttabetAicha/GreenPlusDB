@@ -55,5 +55,13 @@ public class  User {
     public double calculerConsommationTotale() {
         return consommations.stream().mapToDouble(Consommation::calculerImpact).sum();
     }
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
 
