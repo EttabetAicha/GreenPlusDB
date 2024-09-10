@@ -8,8 +8,11 @@ import java.sql.Date;
 import java.util.*;
 
 public class UserRepository {
+    public void addUser(User user) throws SQLException{
 
-    public void addUser(User user) throws SQLException {
+    }
+
+   /* public void addUser(User user) throws SQLException {
         String query = "INSERT INTO users (name, email) VALUES (?, ?)";
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -33,7 +36,7 @@ public class UserRepository {
         } catch (SQLException e) {
             throw new SQLException("Error adding user", e);
         }
-    }
+    }*/
 
 
     public User getUserById(Long id) throws SQLException {

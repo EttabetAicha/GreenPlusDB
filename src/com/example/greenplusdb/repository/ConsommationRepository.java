@@ -8,6 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 public class ConsommationRepository {
+
+    Connection connection;
     public void addConsommation(Consommation consommation) throws SQLException {
 
         String sql = "INSERT INTO consommations (user_id, type, impact, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
@@ -31,8 +33,14 @@ public class ConsommationRepository {
 
         } catch (SQLException e) {
             // Rollback transaction if an exception occurs
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                throw new SQLException("Error rolling back transaction", rollbackEx);
+            }
             throw new SQLException("Error inserting consommation", e);
         }
+
     }
     // Update an existing consommation
     public void updateConsommation(Consommation consommation) throws SQLException {
@@ -55,7 +63,12 @@ public class ConsommationRepository {
 
         } catch (SQLException e) {
             // Rollback transaction if an exception occurs
-            throw new SQLException("Error updating consommation", e);
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                throw new SQLException("Error rolling back transaction", rollbackEx);
+            }
+            throw new SQLException("Error inserting consommation", e);
         }
     }
 }
