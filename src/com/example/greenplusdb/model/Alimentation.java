@@ -7,46 +7,52 @@ public class Alimentation extends Consommation {
     private TypeAliment typeAliment;
     private double poids;
 
-
-    public Alimentation(User user, TypeAliment typeAliment, double poids) {
-
-        super(user, TypeConsommation.ALIMENTATION, calculateAlimentationImpact(poids, typeAliment));
-        this.typeAliment = typeAliment;
-        this.poids = poids;
-    }
-
-
-    public TypeAliment getTypeAliment() {
-        return typeAliment;
-    }
-
-    public void setTypeAliment(TypeAliment typeAliment) {
-        this.typeAliment = typeAliment;
-    }
-
-    public double getPoids() {
-        return poids;
-    }
-
-    public void setPoids(double poids) {
-        this.poids = poids;
-    }
-
-
     @Override
     public double calculerImpact() {
-        return calculateAlimentationImpact(poids, typeAliment);
+        double impactPerKg;
+        switch (typeAliment) {
+            case VIANDE:
+                impactPerKg = 5.0;
+                break;
+            case LEGUME:
+                impactPerKg = 0.5;
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown type of aliment: " + typeAliment);
+        }
+        return impactPerKg * poids;
+    }
+
+    @Override
+    public void setImpact(double impact) {
+        super.setImpact(impact);
+    }
+
+    @Override
+    public TypeConsommation getTypeConsumption() {
+        return TypeConsommation.ALIMENTATION;
     }
 
 
-    private static double calculateAlimentationImpact(double poids, TypeAliment typeAliment) {
-        switch (typeAliment) {
-            case VIANDE:
-                return poids * 5.0;
-            case LEGUME:
-                return poids * 0.5;
-            default:
-                throw new IllegalArgumentException("Unknown food type: " + typeAliment);
-        }
+    // Getters and Setters
+    public TypeAliment getTypeAliment() { return typeAliment; }
+    public void setTypeAliment(TypeAliment typeAliment) { this.typeAliment = typeAliment; }
+    public double getPoids() { return poids; }
+    public void setPoids(double poids) { this.poids = poids; }
+
+    @Override
+    public String toString() {
+        return "Alimentation{" +
+                "id=" + getId() +
+                ", user=" + getUser() +
+                ", typeConsumption=" + getTypeConsumption() +
+                ", impact=" + getImpact() +
+                ", startDate=" + getStartDate() +
+                ", endDate=" + getEndDate() +
+                ", createdAt=" + getCreatedAt() +
+                ", updatedAt=" + getUpdatedAt() +
+                ", typeAliment=" + typeAliment +
+                ", poids=" + poids +
+                '}';
     }
 }

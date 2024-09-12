@@ -2,33 +2,28 @@ package com.example.greenplusdb.model;
 
 import com.example.greenplusdb.model.enums.TypeConsommation;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public abstract class Consommation {
-    private int id;
+
+    private Long id;
     private User user;
-    private TypeConsommation typeConsommation;
+    private TypeConsommation typeConsumption;
     private double impact;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
-    private Timestamp startDate;  // New field
-    private Timestamp endDate;    // New field
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public Consommation(User user, TypeConsommation typeConsommation, double impact, Timestamp startDate, Timestamp endDate) {
-        this.user = user;
-        this.typeConsommation = typeConsommation;
-        this.impact = impact;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
 
-    public int getId() {
+    public abstract double calculerImpact();
+
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -40,12 +35,12 @@ public abstract class Consommation {
         this.user = user;
     }
 
-    public TypeConsommation getTypeConsommation() {
-        return typeConsommation;
+    public TypeConsommation getTypeConsumption() {
+        return typeConsumption;
     }
 
-    public void setTypeConsommation(TypeConsommation typeConsommation) {
-        this.typeConsommation = typeConsommation;
+    public void setTypeConsumption(TypeConsommation typeConsumption) {
+        this.typeConsumption = typeConsumption;
     }
 
     public double getImpact() {
@@ -56,37 +51,49 @@ public abstract class Consommation {
         this.impact = impact;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Timestamp getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public Timestamp getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 
-    public abstract double calculerImpact();
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Consommation{" +
+                "id=" + id +
+                ", user=" + user +
+                ", typeConsumption=" + typeConsumption +
+                ", impact=" + impact +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

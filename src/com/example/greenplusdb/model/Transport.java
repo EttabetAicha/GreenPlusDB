@@ -4,49 +4,50 @@ import com.example.greenplusdb.model.enums.TypeConsommation;
 import com.example.greenplusdb.model.enums.TypeVehicule;
 
 public class Transport extends Consommation {
-    private TypeVehicule typeVehicule;
+
     private double distanceParcourue;
-
-
-    public Transport(User user, TypeVehicule typeVehicule, double distanceParcourue) {
-
-        super(user, TypeConsommation.TRANSPORT, calculateTransportImpact(distanceParcourue, typeVehicule));
-        this.typeVehicule = typeVehicule;
-        this.distanceParcourue = distanceParcourue;
-    }
-
-
-    public TypeVehicule getTypeVehicule() {
-        return typeVehicule;
-    }
-
-    public void setTypeVehicule(TypeVehicule typeVehicule) {
-        this.typeVehicule = typeVehicule;
-    }
-
-    public double getDistanceParcourue() {
-        return distanceParcourue;
-    }
-
-    public void setDistanceParcourue(double distanceParcourue) {
-        this.distanceParcourue = distanceParcourue;
-    }
-
-    private static double calculateTransportImpact(double distanceParcourue, TypeVehicule typeVehicule) {
-        double impact = 0;
-        switch (typeVehicule) {
-            case VOITURE:
-                impact = distanceParcourue * 0.5;
-                break;
-            case TRAIN:
-                impact = distanceParcourue * 0.1;
-                break;
-        }
-        return impact;
-    }
+    private TypeVehicule typeDeVehicule;
 
     @Override
     public double calculerImpact() {
-        return calculateTransportImpact(distanceParcourue, typeVehicule);
+        double impactPerKm = 0.0;
+        switch (typeDeVehicule) {
+            case VOITURE:
+                impactPerKm = 0.5;
+                break;
+            case TRAIN:
+                impactPerKm = 0.1;
+                break;
+        }
+        return impactPerKm * distanceParcourue;
+    }
+    @Override
+    public void setImpact(double impact) {
+        super.setImpact(impact);
+    }
+    @Override
+    public TypeConsommation getTypeConsumption() {
+        return TypeConsommation.ALIMENTATION;
+    }
+
+    public double getDistanceParcourue() { return distanceParcourue; }
+    public void setDistanceParcourue(double distanceParcourue) { this.distanceParcourue = distanceParcourue; }
+    public TypeVehicule getTypeDeVehicule() { return typeDeVehicule; }
+    public void setTypeDeVehicule(TypeVehicule typeDeVehicule) { this.typeDeVehicule = typeDeVehicule; }
+    @Override
+    public String toString() {
+        return "Transport{" +
+                 "id=" + getId() +
+                ", user=" + getUser() +
+                ", typeConsumption=" + getTypeConsumption() +
+                ", impact=" + getImpact() +
+                ", startDate=" + getStartDate() +
+                ", endDate=" + getEndDate() +
+                ", createdAt=" + getCreatedAt() +
+                ", updatedAt=" + getUpdatedAt() +
+                ", distanceParcourue=" + distanceParcourue +
+                ", type_de_vehicule=" + typeDeVehicule +
+                ", impact=" + calculerImpact() +
+                '}';
     }
 }
