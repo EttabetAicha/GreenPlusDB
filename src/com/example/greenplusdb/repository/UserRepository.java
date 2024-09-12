@@ -52,7 +52,7 @@ public class UserRepository {
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setString(1, user.getName()); // Ensure field name matches
+            statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
             statement.setLong(3, user.getId());
 
@@ -66,12 +66,12 @@ public class UserRepository {
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setLong(1, id);
-
             statement.executeUpdate();
         }
     }
 
-    public List<User> getAllUsers() throws SQLException {
+
+    public List<User> findAllUsers() throws SQLException {
         String query = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
 
@@ -82,15 +82,13 @@ public class UserRepository {
             while (resultSet.next()) {
                 users.add(new User(
                         resultSet.getLong("id"),
-                        resultSet.getString("username"), // Ensure field name matches
+                        resultSet.getString("username"),
                         resultSet.getString("email")
                 ));
             }
         }
-
         return users;
     }
-
 
 
     public List<User> getUsersSortedByConsumption() throws SQLException {
@@ -99,6 +97,7 @@ public class UserRepository {
                 "LEFT JOIN consommations c ON u.id = c.user_id " +
                 "GROUP BY u.id " +
                 "ORDER BY total_impact DESC";
+
         List<User> users = new ArrayList<>();
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -106,11 +105,15 @@ public class UserRepository {
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                users.add(new User(
+                User user = new User(
                         rs.getLong("id"),
                         rs.getString("username"),
                         rs.getString("email")
-                ));
+                );
+
+                user.setTotalImpact(rs.getDouble("total_impact"));
+
+                users.add(user);
             }
         }
 

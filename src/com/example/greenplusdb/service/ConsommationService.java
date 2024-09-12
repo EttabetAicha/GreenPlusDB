@@ -2,28 +2,68 @@ package com.example.greenplusdb.service;
 
 import com.example.greenplusdb.model.Consommation;
 import com.example.greenplusdb.model.User;
+import com.example.greenplusdb.repository.ConsommationRepository;
 import com.example.greenplusdb.utils.DateUtils;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConsommationService {
+    private final ConsommationRepository consommationRepository;
 
-  /*  public Double averageByPeriod(User user, Timestamp startDate, Timestamp endDate) {
+    public ConsommationService(ConsommationRepository consommationRepository) {
+        this.consommationRepository = consommationRepository;
+    }
 
-        if (!startDate.isAfter(endDate)) {
-            List<Consommation> consumptions = user.getConsommations();
 
-            List<Timestamp> dates =
-
-            return (consumptions
-                    .stream()
-                    .filter(e -> DateUtils.isDateAvailable(e.getStartDate, e.getEndDate(), dates))
-                    .mapToDouble(consumptions::getConsumptionImpact)
-                    .sum()) / (double) dates.size();
+    public void addConsommation(Consommation consommation) throws SQLException {
+        try {
+            consommationRepository.addConsommation(consommation);
+            System.out.println("Consommation added successfully.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding consommation", e);
         }
-        return 0.0;
-    }*/
+    }
+
+
+    public void updateConsommation(Consommation consommation) throws SQLException {
+        try {
+            consommationRepository.updateConsommation(consommation);
+            System.out.println("Consommation updated successfully.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating consommation", e);
+        }
+    }
+
+
+    public void deleteConsommation(long consommationId) throws SQLException {
+        try {
+            consommationRepository.deleteConsommation(consommationId);
+            System.out.println("Consommation deleted successfully.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting consommation", e);
+        }
+    }
+
+
+    public double calculerConsommationMoyenne(User user, LocalDateTime startDate, LocalDateTime endDate) {
+
+        List<Consommation> consommations = user.getConsommations();
+        List<LocalDateTime> dateRange = DateUtils.dateListRange(startDate, endDate);
+        List<Consommation> consommationsWithinRange = consommations.stream()
+                .filter(consommation -> DateUtils.isDateAvailable(
+                        consommation.getStartDate(),
+                        consommation.getEndDate(),
+                        dateRange))
+                .collect(Collectors.toList());
+
+        double totalImpact = consommationsWithinRange.stream()
+                .mapToDouble(Consommation::calculerImpact)
+                .sum();
+        long daysInRange = DateUtils.calculateDaysBetween(startDate, endDate.plusDays(1));
+
+        return daysInRange > 0 ? totalImpact / daysInRange : 0;
+    }
 }
