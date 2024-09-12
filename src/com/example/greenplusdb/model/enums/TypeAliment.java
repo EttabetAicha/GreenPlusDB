@@ -1,18 +1,30 @@
 package com.example.greenplusdb.model.enums;
 
 public enum TypeAliment {
-    VIANDE(5.0),
-    LEGUME(0.5);
+    VIANDE("VIANDE"),
+    LEGUME("LEGUME");
 
-    private final double impact;
+    private final String value;
 
-
-    TypeAliment(double impact) {
-        this.impact = impact;
+    TypeAliment(String value) {
+        this.value = value;
     }
 
-    public double getImpact() {
-        return impact;
+    public String getValue() {
+        return value;
     }
 
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public static TypeAliment fromValue(String value) {
+        for (TypeAliment type : values()) {
+            if (type.value.equalsIgnoreCase(value)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown aliment type: " + value);
+    }
 }

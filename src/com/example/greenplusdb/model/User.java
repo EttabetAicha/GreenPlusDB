@@ -1,20 +1,20 @@
 package com.example.greenplusdb.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class  User {
+public class User {
     private Long id;
     private String name;
     private String email;
-    private final Set<Consommation> consommations = new HashSet<>();
-
+    private final List<Consommation> consommations = new ArrayList<>();
+    private double totalImpact;
 
     public User(Long id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
     }
+
 
     public Long getId() {
         return id;
@@ -40,28 +40,58 @@ public class  User {
         this.email = email;
     }
 
-    public Set<Consommation> getConsommations() {
+    public List<Consommation> getConsommations() {
         return consommations;
     }
 
     public void addConsommation(Consommation consommation) {
         consommations.add(consommation);
+        updateTotalImpact();
     }
 
     public void removeConsommation(Consommation consommation) {
         consommations.remove(consommation);
+        updateTotalImpact();
     }
+
 
     public double calculerConsommationTotale() {
         return consommations.stream().mapToDouble(Consommation::calculerImpact).sum();
     }
+
+
+    private void updateTotalImpact() {
+        this.totalImpact = calculerConsommationTotale();
+    }
+
+    public double getTotalImpact() {
+        return totalImpact;
+    }
+
+    public void setTotalImpact(double totalImpact) {
+        this.totalImpact = totalImpact;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
+                ", totalImpact=" + totalImpact +
                 '}';
     }
-}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}

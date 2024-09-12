@@ -1,74 +1,131 @@
 package com.example.greenplusdb.repository;
 
+import com.example.greenplusdb.model.*;
 import com.example.greenplusdb.config.DatabaseConnection;
-import com.example.greenplusdb.model.Consommation;
-import com.example.greenplusdb.model.User;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+
 public class ConsommationRepository {
+    private final Connection connection;
 
-    Connection connection;
+    public ConsommationRepository() throws SQLException {
+        this.connection = DatabaseConnection.getInstance().getConnection();
+    }
+
+
     public void addConsommation(Consommation consommation) throws SQLException {
+        String insertConsommationSql = "INSERT INTO consommation (user_id, type_consumption, impact, start_date, end_date, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String insertSpecificTableSql = null;
+        Connection connection = null;
 
-        String sql = "INSERT INTO consommations (user_id, type, impact, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            // Start transaction
+        try {
+            connection = DatabaseConnection.getInstance().getConnection();
             connection.setAutoCommit(false);
 
-            // Set parameters
-            pstmt.setLong(1, consommation.getUser().getId());
-            pstmt.setString(2, consommation.getTypeConsommation().toString());
-            pstmt.setDouble(3, consommation.getImpact());
-            pstmt.setTimestamp(4, consommation.getCreatedAt());
-            pstmt.setTimestamp(5, consommation.getUpdatedAt());
+            long consommationId;
+            try (PreparedStatement pstmtConsommation = connection.prepareStatement(insertConsommationSql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmtConsommation.setLong(1, consommation.getUser().getId());
+                pstmtConsommation.setObject(2, consommation.getTypeConsumption().name(), java.sql.Types.OTHER);
+                pstmtConsommation.setDouble(3, consommation.getImpact());
+                pstmtConsommation.setTimestamp(4, Timestamp.valueOf(consommation.getStartDate()));
+                pstmtConsommation.setTimestamp(5, Timestamp.valueOf(consommation.getEndDate()));
+                pstmtConsommation.setTimestamp(6, Timestamp.valueOf(consommation.getCreatedAt()));
+                pstmtConsommation.setTimestamp(7, consommation.getUpdatedAt() != null ? Timestamp.valueOf(consommation.getUpdatedAt()) : null);
 
-            // Execute and commit
-            pstmt.executeUpdate();
+                int affectedRows = pstmtConsommation.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Creating consommation failed, no rows affected.");
+                }
+
+
+                try (ResultSet rs = pstmtConsommation.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        consommationId = rs.getLong(1);
+                    } else {
+                        throw new SQLException("Failed to retrieve generated ID for consommation.");
+                    }
+                }
+            }
+
+
+            if (consommation instanceof Transport) {
+                insertSpecificTableSql = "INSERT INTO transport (id, user_id, type_consumption, impact, start_date, end_date, distance_parcourue, type_de_vehicule) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                Transport transport = (Transport) consommation;
+                try (PreparedStatement pstmtSpecific = connection.prepareStatement(insertSpecificTableSql)) {
+                    pstmtSpecific.setLong(1, consommationId);
+                    pstmtSpecific.setLong(2, transport.getUser().getId());
+                    pstmtSpecific.setObject(3, transport.getTypeConsumption().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.setDouble(4, transport.getImpact());
+                    pstmtSpecific.setTimestamp(5, Timestamp.valueOf(transport.getStartDate()));
+                    pstmtSpecific.setTimestamp(6, Timestamp.valueOf(transport.getEndDate()));
+                    pstmtSpecific.setDouble(7, transport.getDistanceParcourue());
+                    pstmtSpecific.setObject(8, transport.getTypeDeVehicule().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.executeUpdate();
+                }
+            } else if (consommation instanceof Logement) {
+                insertSpecificTableSql = "INSERT INTO logement (id, user_id, type_consumption, impact, start_date, end_date, consommation_energie, type_energie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                Logement logement = (Logement) consommation;
+                try (PreparedStatement pstmtSpecific = connection.prepareStatement(insertSpecificTableSql)) {
+                    pstmtSpecific.setLong(1, consommationId);
+                    pstmtSpecific.setLong(2, logement.getUser().getId());
+                    pstmtSpecific.setObject(3, logement.getTypeConsumption().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.setDouble(4, logement.getImpact());
+                    pstmtSpecific.setTimestamp(5, Timestamp.valueOf(logement.getStartDate()));
+                    pstmtSpecific.setTimestamp(6, Timestamp.valueOf(logement.getEndDate()));
+                    pstmtSpecific.setDouble(7, logement.getConsommationEnergie());
+                    pstmtSpecific.setObject(8, logement.getTypeEnergie().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.executeUpdate();
+                }
+            } else if (consommation instanceof Alimentation) {
+                insertSpecificTableSql = "INSERT INTO alimentation (id, user_id, type_aliment, poids, type_consumption, impact, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                Alimentation alimentation = (Alimentation) consommation;
+
+
+                alimentation.setImpact(alimentation.calculerImpact());
+
+                try (PreparedStatement pstmtSpecific = connection.prepareStatement(insertSpecificTableSql)) {
+                    pstmtSpecific.setLong(1, consommationId);
+                    pstmtSpecific.setLong(2, alimentation.getUser().getId());
+                    pstmtSpecific.setObject(3, alimentation.getTypeAliment().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.setDouble(4, alimentation.getPoids());
+                    pstmtSpecific.setObject(5, consommation.getTypeConsumption().name(), java.sql.Types.OTHER);
+                    pstmtSpecific.setDouble(6, alimentation.getImpact());
+                    pstmtSpecific.setTimestamp(7, Timestamp.valueOf(consommation.getStartDate()));
+                    pstmtSpecific.setTimestamp(8, Timestamp.valueOf(consommation.getEndDate()));
+                    pstmtSpecific.executeUpdate();
+                }
+            }
+
             connection.commit();
+            System.out.println("Consommation added successfully");
 
         } catch (SQLException e) {
-            // Rollback transaction if an exception occurs
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                throw new SQLException("Error rolling back transaction", rollbackEx);
+            if (connection != null && !connection.isClosed()) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackException) {
+                    rollbackException.printStackTrace();
+                }
             }
-            throw new SQLException("Error inserting consommation", e);
-        }
-
-    }
-    // Update an existing consommation
-    public void updateConsommation(Consommation consommation) throws SQLException {
-        String sql = "UPDATE consommations SET impact = ?, updated_at = ? WHERE id = ?";
-
-        try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            // Start transaction
-            connection.setAutoCommit(false);
-
-            // Set parameters
-            pstmt.setDouble(1, consommation.getImpact());
-            pstmt.setTimestamp(2, consommation.getUpdatedAt());
-            pstmt.setInt(3, consommation.getId());
-
-            // Execute and commit
-            pstmt.executeUpdate();
-            connection.commit();
-
-        } catch (SQLException e) {
-            // Rollback transaction if an exception occurs
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                throw new SQLException("Error rolling back transaction", rollbackEx);
+            throw new RuntimeException("Failed to add consommation", e);
+        } finally {
+            if (connection != null && !connection.isClosed()) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-            throw new SQLException("Error inserting consommation", e);
         }
     }
+
+
+
+
 }

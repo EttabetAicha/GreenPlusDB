@@ -1,16 +1,31 @@
 package com.example.greenplusdb.model.enums;
 
 public enum TypeVehicule {
-    VOITURE(0.5),
-    TRAIN(0.1);
 
-    private final double impact;
+    VOITURE("VOITURE"),
+    TRAIN("TRAIN");
 
-    TypeVehicule(double impact) {
-        this.impact = impact;
+    private final String value;
+
+    TypeVehicule(String value) {
+        this.value = value;
     }
 
-    public double getImpact() {
-        return impact;
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    public static TypeVehicule fromValue(String value) {
+        for (TypeVehicule type : values()) {
+            if (type.value.equalsIgnoreCase(value)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown transport type: " + value);
     }
 }
