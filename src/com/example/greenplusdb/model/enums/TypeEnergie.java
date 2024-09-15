@@ -1,7 +1,7 @@
 package com.example.greenplusdb.model.enums;
 
 public enum TypeEnergie {
-        ELECTRICITE("ElECTRICITE"),
+    ELECTRICITE("ElECTRICITE"),
     GAZ("GAZ");
 
     private final String value;

@@ -15,6 +15,9 @@ public class User {
         this.email = email;
     }
 
+    public User(Long id) {
+        this.id = id;
+    }
 
     public Long getId() {
         return id;
@@ -46,26 +49,15 @@ public class User {
 
     public void addConsommation(Consommation consommation) {
         consommations.add(consommation);
-        updateTotalImpact();
-    }
 
+    }
     public void removeConsommation(Consommation consommation) {
         consommations.remove(consommation);
-        updateTotalImpact();
-    }
 
+    }
 
     public double calculerConsommationTotale() {
         return consommations.stream().mapToDouble(Consommation::calculerImpact).sum();
-    }
-
-
-    private void updateTotalImpact() {
-        this.totalImpact = calculerConsommationTotale();
-    }
-
-    public double getTotalImpact() {
-        return totalImpact;
     }
 
     public void setTotalImpact(double totalImpact) {
@@ -78,7 +70,6 @@ public class User {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", totalImpact=" + totalImpact +
                 '}';
     }
 

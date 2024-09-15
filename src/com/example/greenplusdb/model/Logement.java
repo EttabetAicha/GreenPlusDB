@@ -1,5 +1,6 @@
 package com.example.greenplusdb.model;
 
+import com.example.greenplusdb.model.enums.TypeConsommation;
 import com.example.greenplusdb.model.enums.TypeEnergie;
 
 public class Logement extends Consommation {
@@ -23,6 +24,11 @@ public class Logement extends Consommation {
     @Override
     public void setImpact(double impact) {
         super.setImpact(impact);
+    }
+    @Override
+    public TypeConsommation getTypeConsumption() {
+
+        return TypeConsommation.LOGEMENT;
     }
 
 

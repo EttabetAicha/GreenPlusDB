@@ -17,7 +17,6 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-
     public void addUser(User user) throws SQLException {
         try {
             userRepository.addUser(user);
@@ -27,11 +26,9 @@ public class UserService {
         }
     }
 
-
     public User getUserById(Long id) throws SQLException {
         return userRepository.getUserById(id);
     }
-
 
     public void updateUser(User user) throws SQLException {
         try {
@@ -42,7 +39,6 @@ public class UserService {
         }
     }
 
-
     public void deleteUser(Long id) throws SQLException {
         try {
             userRepository.deleteUser(id);
@@ -52,24 +48,21 @@ public class UserService {
         }
     }
 
-
     public List<User> findAllUsers() throws SQLException {
         return userRepository.findAllUsers();
     }
 
 
-    public List<User> getUsersSortedByConsumption() throws SQLException {
-        return userRepository.getUsersSortedByConsumption();
-    }
 
     public List<User> filterUsersByTotalConsumption() throws SQLException {
         double threshold = 3000.0;
-        List<User> usersWithConsumption = userRepository.getUsersSortedByConsumption();
+        List<User> users = userRepository.findAllUsers();
 
-        return usersWithConsumption.stream()
-                .filter(user -> user.getTotalImpact() > threshold)
+        return users.stream()
+                .filter(user -> user.calculerConsommationTotale() > threshold)
                 .collect(Collectors.toList());
     }
+
     public List<User> detectInactiveUsers(List<User> users, LocalDateTime startDate, LocalDateTime endDate) {
         List<LocalDateTime> dateRange = DateUtils.dateListRange(startDate, endDate);
         return users.stream()
@@ -80,9 +73,10 @@ public class UserService {
                                 dateRange)))
                 .collect(Collectors.toList());
     }
+
     public List<User> sortUsersByConsumption(List<User> users) {
         return users.stream()
-                .sorted((user1, user2) -> Double.compare(user2.getTotalImpact(), user1.getTotalImpact()))
+                .sorted((user1, user2) -> Double.compare(user2.calculerConsommationTotale(), user1.calculerConsommationTotale()))
                 .collect(Collectors.toList());
     }
 }

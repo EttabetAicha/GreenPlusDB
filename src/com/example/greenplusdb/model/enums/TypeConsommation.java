@@ -1,9 +1,10 @@
     package com.example.greenplusdb.model.enums;
 
     public enum TypeConsommation {
+        ALIMENTATION("ALIMENTATION"),
         TRANSPORT("TRANSPORT"),
-        LOGEMENT("LOGEMENT"),
-        ALIMENTATION("ALIMENTATION");
+        LOGEMENT("LOGEMENT");
+
 
         private final String value;
 

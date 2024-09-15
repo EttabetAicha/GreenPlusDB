@@ -21,21 +21,21 @@ public class ConsommationService {
     public void addConsommation(Consommation consommation) throws SQLException {
         try {
             consommationRepository.addConsommation(consommation);
-            System.out.println("Consommation added successfully.");
+
         } catch (SQLException e) {
             throw new RuntimeException("Error adding consommation", e);
         }
     }
 
 
-    public void updateConsommation(Consommation consommation) throws SQLException {
-        try {
-            consommationRepository.updateConsommation(consommation);
-            System.out.println("Consommation updated successfully.");
-        } catch (SQLException e) {
-            throw new RuntimeException("Error updating consommation", e);
-        }
-    }
+//    public void updateConsommation(Consommation consommation) throws SQLException {
+//        try {
+//            consommationRepository.updateConsommation(consommation);
+//            System.out.println("Consommation updated successfully.");
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Error updating consommation", e);
+//        }
+//    }
 
 
     public void deleteConsommation(long consommationId) throws SQLException {
@@ -45,6 +45,12 @@ public class ConsommationService {
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting consommation", e);
         }
+    }
+    public Consommation getConsommationById(long id) throws SQLException {
+        return new ConsommationRepository().getConsommationById(id);
+    }
+    public List<Consommation> getAllConsommations() throws SQLException {
+        return consommationRepository.getAllConsommations();
     }
 
 

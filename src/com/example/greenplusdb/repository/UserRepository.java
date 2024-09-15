@@ -90,33 +90,4 @@ public class UserRepository {
         return users;
     }
 
-
-    public List<User> getUsersSortedByConsumption() throws SQLException {
-        String sql = "SELECT u.*, COALESCE(SUM(c.impact), 0) as total_impact " +
-                "FROM users u " +
-                "LEFT JOIN consommations c ON u.id = c.user_id " +
-                "GROUP BY u.id " +
-                "ORDER BY total_impact DESC";
-
-        List<User> users = new ArrayList<>();
-
-        try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                User user = new User(
-                        rs.getLong("id"),
-                        rs.getString("username"),
-                        rs.getString("email")
-                );
-
-                user.setTotalImpact(rs.getDouble("total_impact"));
-
-                users.add(user);
-            }
-        }
-
-        return users;
-    }
 }

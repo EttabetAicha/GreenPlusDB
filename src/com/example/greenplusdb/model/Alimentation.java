@@ -30,11 +30,12 @@ public class Alimentation extends Consommation {
 
     @Override
     public TypeConsommation getTypeConsumption() {
+
         return TypeConsommation.ALIMENTATION;
     }
 
 
-    // Getters and Setters
+
     public TypeAliment getTypeAliment() { return typeAliment; }
     public void setTypeAliment(TypeAliment typeAliment) { this.typeAliment = typeAliment; }
     public double getPoids() { return poids; }

@@ -27,8 +27,10 @@ public class Transport extends Consommation {
     }
     @Override
     public TypeConsommation getTypeConsumption() {
-        return TypeConsommation.ALIMENTATION;
+        return TypeConsommation.TRANSPORT;
+
     }
+
 
     public double getDistanceParcourue() { return distanceParcourue; }
     public void setDistanceParcourue(double distanceParcourue) { this.distanceParcourue = distanceParcourue; }
