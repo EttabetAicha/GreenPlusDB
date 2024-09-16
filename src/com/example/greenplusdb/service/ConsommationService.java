@@ -1,9 +1,7 @@
 package com.example.greenplusdb.service;
 
 import com.example.greenplusdb.model.Consommation;
-import com.example.greenplusdb.model.User;
 import com.example.greenplusdb.repository.ConsommationRepository;
-import com.example.greenplusdb.utils.DateUtils;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -21,21 +19,10 @@ public class ConsommationService {
     public void addConsommation(Consommation consommation) throws SQLException {
         try {
             consommationRepository.addConsommation(consommation);
-
         } catch (SQLException e) {
             throw new RuntimeException("Error adding consommation", e);
         }
     }
-
-
-//    public void updateConsommation(Consommation consommation) throws SQLException {
-//        try {
-//            consommationRepository.updateConsommation(consommation);
-//            System.out.println("Consommation updated successfully.");
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Error updating consommation", e);
-//        }
-//    }
 
 
     public void deleteConsommation(long consommationId) throws SQLException {
@@ -46,30 +33,47 @@ public class ConsommationService {
             throw new RuntimeException("Error deleting consommation", e);
         }
     }
+
+
     public Consommation getConsommationById(long id) throws SQLException {
-        return new ConsommationRepository().getConsommationById(id);
+        return consommationRepository.getConsommationById(id);
     }
+
     public List<Consommation> getAllConsommations() throws SQLException {
         return consommationRepository.getAllConsommations();
     }
 
 
-    public double calculerConsommationMoyenne(User user, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Consommation> getConsommationByUserId(long userId) throws SQLException {
+        return consommationRepository.getConsommationByUserId(userId);
+    }
 
-        List<Consommation> consommations = user.getConsommations();
-        List<LocalDateTime> dateRange = DateUtils.dateListRange(startDate, endDate);
-        List<Consommation> consommationsWithinRange = consommations.stream()
-                .filter(consommation -> DateUtils.isDateAvailable(
-                        consommation.getStartDate(),
-                        consommation.getEndDate(),
-                        dateRange))
+
+    public double calculateConsommationMoyenne(LocalDateTime startDate, LocalDateTime endDate, long userId) throws SQLException {
+        List<Consommation> consommations = getConsommationByUserId(userId);
+
+
+        List<Consommation> filteredConsommations = consommations.stream()
+                .filter(c -> c.getStartDate() != null &&
+                        c.getEndDate() != null &&
+                        !c.getEndDate().isBefore(startDate) &&
+                        !c.getStartDate().isAfter(endDate))
                 .collect(Collectors.toList());
 
-        double totalImpact = consommationsWithinRange.stream()
-                .mapToDouble(Consommation::calculerImpact)
-                .sum();
-        long daysInRange = DateUtils.calculateDaysBetween(startDate, endDate.plusDays(1));
 
-        return daysInRange > 0 ? totalImpact / daysInRange : 0;
+        System.out.println("Filtered consommations count: " + filteredConsommations.size());
+        filteredConsommations.forEach(c -> {
+            System.out.println("Filtered Consommation ID: " + c.getId());
+            System.out.println("Start Date: " + c.getStartDate());
+            System.out.println("End Date: " + c.getEndDate());
+            System.out.println("Impact: " + c.calculerImpact());
+        });
+
+
+        return filteredConsommations.stream()
+                .mapToDouble(Consommation::calculerImpact)
+                .average()
+                .orElse(0.0);
     }
+
 }

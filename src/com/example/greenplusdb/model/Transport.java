@@ -10,7 +10,7 @@ public class Transport extends Consommation {
 
     @Override
     public double calculerImpact() {
-        double impactPerKm = 0.0;
+        double impactPerKm;
         switch (typeDeVehicule) {
             case VOITURE:
                 impactPerKm = 0.5;
@@ -18,6 +18,8 @@ public class Transport extends Consommation {
             case TRAIN:
                 impactPerKm = 0.1;
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown type of vehicle: " + typeDeVehicule);
         }
         return impactPerKm * distanceParcourue;
     }

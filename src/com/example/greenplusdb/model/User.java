@@ -1,6 +1,10 @@
 package com.example.greenplusdb.model;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class User {
     private Long id;
@@ -44,20 +48,32 @@ public class User {
     }
 
     public List<Consommation> getConsommations() {
-        return consommations;
+        return Collections.unmodifiableList(consommations);
     }
 
     public void addConsommation(Consommation consommation) {
         consommations.add(consommation);
-
     }
+
     public void removeConsommation(Consommation consommation) {
         consommations.remove(consommation);
-
     }
 
     public double calculerConsommationTotale() {
-        return consommations.stream().mapToDouble(Consommation::calculerImpact).sum();
+        return consommations.stream()
+                .mapToDouble(Consommation::calculerImpact)
+                .sum();
+    }
+
+    public double calculerConsommationMoyenne(LocalDateTime startDate, LocalDateTime endDate) {
+        return consommations.stream()
+                .filter(c -> c.getStartDate() != null &&
+                        c.getEndDate() != null &&
+                        !c.getEndDate().isBefore(startDate) &&
+                        !c.getStartDate().isAfter(endDate))
+                .mapToDouble(Consommation::calculerImpact)
+                .average()
+                .orElse(0.0);
     }
 
     public void setTotalImpact(double totalImpact) {

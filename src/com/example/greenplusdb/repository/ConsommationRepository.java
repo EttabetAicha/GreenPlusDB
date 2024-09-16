@@ -231,6 +231,62 @@ public class ConsommationRepository {
             pstmtDeleteConsommation.executeUpdate();
         }
     }
+    public List<Consommation> getConsommationByUserId(long userId) throws SQLException {
+        String selectConsommationsByUserSql = "SELECT * FROM consommation WHERE user_id = ?";
+        List<Consommation> consommations = new ArrayList<>();
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(selectConsommationsByUserSql)) {
+            pstmt.setLong(1, userId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    long id = rs.getLong("id");
+                    TypeConsommation typeConsommation = TypeConsommation.valueOf(rs.getString("type_consumption"));
+                    double impact = rs.getDouble("impact");
+                    LocalDateTime startDate = rs.getTimestamp("start_date").toLocalDateTime();
+                    LocalDateTime endDate = rs.getTimestamp("end_date").toLocalDateTime();
+                    LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
+                    LocalDateTime updatedAt = rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null;
+
+                    // Debugging print statements
+                    System.out.println("Fetching Consommation ID: " + id);
+                    System.out.println("Type: " + typeConsommation);
+                    System.out.println("Impact: " + impact);
+                    System.out.println("Start Date: " + startDate);
+                    System.out.println("End Date: " + endDate);
+                    System.out.println("Created At: " + createdAt);
+                    System.out.println("Updated At: " + updatedAt);
+
+                    Consommation consommation = null;
+                    switch (typeConsommation) {
+                        case TRANSPORT:
+                            consommation = getTransportById(id, userId, impact, startDate, endDate, createdAt, updatedAt);
+                            break;
+                        case LOGEMENT:
+                            consommation = getLogementById(id, userId, impact, startDate, endDate, createdAt, updatedAt);
+                            break;
+                        case ALIMENTATION:
+                            consommation = getAlimentationById(id, userId, impact, startDate, endDate, createdAt, updatedAt);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown type of consommation: " + typeConsommation);
+                    }
+
+                    if (consommation != null) {
+                        consommations.add(consommation);
+                        System.out.println("Added consommation: " + consommation);
+                    } else {
+                        System.out.println("No consommation created for ID: " + id);
+                    }
+                }
+            }
+        }
+
+        System.out.println("Total consommations retrieved for user " + userId + ": " + consommations.size());
+        return consommations;
+    }
+
     public Consommation getConsommationById(long id) throws SQLException {
         String selectConsommationSql = "SELECT * FROM consommation WHERE id = ?";
         Consommation consommation = null;
@@ -249,7 +305,7 @@ public class ConsommationRepository {
                     LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                     LocalDateTime updatedAt = rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null;
 
-                    // Based on the type, call the respective retrieval method
+
                     switch (typeConsommation) {
                         case TRANSPORT:
                             consommation = getTransportById(id, userId, impact, startDate, endDate, createdAt, updatedAt);
