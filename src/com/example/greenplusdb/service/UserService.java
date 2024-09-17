@@ -1,8 +1,8 @@
 package com.example.greenplusdb.service;
 
+import com.example.greenplusdb.model.Consommation;
 import com.example.greenplusdb.model.User;
 import com.example.greenplusdb.repository.UserRepository;
-import com.example.greenplusdb.utils.DateUtils;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -59,20 +59,74 @@ public class UserService {
         List<User> users = userRepository.findAllUsers();
 
         return users.stream()
-                .filter(user -> user.calculerConsommationTotale() > threshold)
+                .filter(user -> {
+                    try {
+                        double totalConsumption = ConsommationService.calculateTotalConsumptionByUserId(user.getId());
+                        return totalConsumption > threshold;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
-    public List<User> detectInactiveUsers(List<User> users, LocalDateTime startDate, LocalDateTime endDate) {
-        List<LocalDateTime> dateRange = DateUtils.dateListRange(startDate, endDate);
-        return users.stream()
-                .filter(user -> user.getConsommations().stream()
-                        .noneMatch(consommation -> DateUtils.isDateAvailable(
-                                consommation.getStartDate(),
-                                consommation.getEndDate(),
-                                dateRange)))
+    public List<User> detectInactiveUsers(List<User> allUsers, LocalDateTime startDate, LocalDateTime endDate) throws SQLException {
+        System.out.println("Detecting inactive users from " + startDate + " to " + endDate);
+
+        // Fetch all users
+        List<User> users = userRepository.findAllUsers();
+
+        List<User> inactiveUsers = users.stream()
+                .filter(user -> {
+                    System.out.println("Checking user: " + user.getName());
+
+                    try {
+
+                        List<Consommation> consommations = ConsommationService.getConsommationByUserId(user.getId());
+
+                        if (consommations == null || consommations.isEmpty()) {
+                            System.out.println("User " + user.getName() + " has no consommations. Marking as inactive.");
+                            return true;
+                        }
+
+                        boolean hasOverlap = consommations.stream()
+                                .anyMatch(consommation -> {
+                                    LocalDateTime consommationStart = consommation.getStartDate();
+                                    LocalDateTime consommationEnd = consommation.getEndDate();
+                                    System.out.println("Checking consommation: Start = " + consommationStart + ", End = " + consommationEnd);
+
+                                    return isDateAvailable(startDate, endDate, consommationStart, consommationEnd);
+                                });
+
+                        System.out.println("User " + user.getName() + " has overlap: " + hasOverlap);
+                        return !hasOverlap;
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                })
                 .collect(Collectors.toList());
+
+        System.out.println("Inactive users: " + inactiveUsers);
+        return inactiveUsers;
     }
+
+    public static boolean isDateAvailable(LocalDateTime startDate, LocalDateTime endDate, LocalDateTime consommationStart, LocalDateTime consommationEnd) {
+        System.out.println("Checking overlap for:");
+        System.out.println("Date Range Start: " + startDate + ", Date Range End: " + endDate);
+        System.out.println("Consommation Start: " + consommationStart + ", Consommation End: " + consommationEnd);
+
+        boolean overlap = consommationStart.isBefore(endDate) && consommationEnd.isAfter(startDate);
+
+        System.out.println("Overlap detected: " + overlap);
+        return overlap;
+    }
+
+
+
+
 
     public List<User> sortUsersByConsumption(List<User> users) {
         return users.stream()

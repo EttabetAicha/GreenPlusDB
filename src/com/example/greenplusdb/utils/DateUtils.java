@@ -15,10 +15,11 @@ public class DateUtils {
         return dateListRange;
     }
 
-    public static boolean isDateAvailable(LocalDateTime startDate, LocalDateTime endDate, List<LocalDateTime> dates) {
-        return dates.stream()
-                .anyMatch(date -> (date.isAfter(startDate.minusDays(1)) && date.isBefore(endDate.plusDays(1))));
-    }
+
+
+
+
+
 
 
     public static long calculateDaysBetween(LocalDateTime startDate, LocalDateTime endDate) {

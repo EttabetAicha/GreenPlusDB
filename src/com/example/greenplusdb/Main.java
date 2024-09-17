@@ -195,11 +195,27 @@
             try {
                 System.out.println("\n==== Filter Users by Total Consumption ====");
                 List<User> filteredUsers = userService.filterUsersByTotalConsumption();
-                filteredUsers.forEach(System.out::println);
+
+                if (filteredUsers.isEmpty()) {
+                    System.out.println("No users found with total consumption above the threshold.");
+                } else {
+                    filteredUsers.forEach(user -> {
+                        System.out.println("User ID: " + user.getId());
+                        System.out.println("Name: " + user.getName());
+                        System.out.println("Email: " + user.getEmail());
+                        try {
+                            System.out.println("Total Consumption: " + ConsommationService.calculateTotalConsumptionByUserId(user.getId()));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        System.out.println("-----");
+                    });
+                }
             } catch (SQLException e) {
                 System.out.println("Error filtering users: " + e.getMessage());
             }
         }
+
 
         private static void detectInactiveUsers() {
             try {

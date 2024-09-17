@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConsommationService {
-    private final ConsommationRepository consommationRepository;
+    private static ConsommationRepository consommationRepository;
 
     public ConsommationService(ConsommationRepository consommationRepository) {
-        this.consommationRepository = consommationRepository;
+        ConsommationService.consommationRepository = consommationRepository;
     }
 
 
@@ -44,7 +44,7 @@ public class ConsommationService {
     }
 
 
-    public List<Consommation> getConsommationByUserId(long userId) throws SQLException {
+    public static List<Consommation> getConsommationByUserId(long userId) throws SQLException {
         return consommationRepository.getConsommationByUserId(userId);
     }
 
@@ -75,5 +75,15 @@ public class ConsommationService {
                 .average()
                 .orElse(0.0);
     }
+    public static double calculateTotalConsumptionByUserId(long userId) throws SQLException {
+
+        List<Consommation> consommations = getConsommationByUserId(userId);
+
+
+        return consommations.stream()
+                .mapToDouble(Consommation::calculerImpact)
+                .sum();
+    }
+
 
 }
